@@ -21,17 +21,34 @@ end
 
 def create_map size
   a = Array.new(Array.new(size))
-
-    0.upto(a.length-1) do |i|
-      0.upto(a.length-1) do |j|
-        r = Random.rand(255)
-        g = Random.rand(255)
-        b = Random.rand(255)
-        a[i[j]] = Color.new(255, r, g, b)
-      end
+  rnd = Random.new()
+  0.upto(a.length-1) do |i|
+    0.upto(a.length-1) do |j|
+      r = rnd.rand(255)
+      g = rnd.rand(255)
+      b = rnd.rand(255)
+      a[i[j]] = Color.new(255, r, g, b)
     end
+  end
   return a
 end
+
+def draw_map map
+  0.upto(map.length-1) do |i|
+      0.upto(map.length-1) do |j|
+        x = j * $TILE_WIDTH
+        y = i * $TILE_HEIGHT
+        if i.odd?
+          x += $TILE_WIDTH/2
+        end
+        color = map[i[j]]
+        put_quad(x, y, color)
+        #It's not a[i][j], but a[i[j]]
+      end
+  end
+end
+
+
 
 class GameWindow < Window
   def initialize
@@ -50,18 +67,7 @@ class GameWindow < Window
   
   def draw() 
 
-    0.upto(@map.length-1) do |i|
-      0.upto(@map.length-1) do |j|
-        x = j * $TILE_WIDTH
-        y = i * $TILE_HEIGHT
-        if i.odd?
-          x += $TILE_WIDTH/2
-        end
-        color = @map[i[j]]
-        put_quad(x, y, color)
-        #It's not a[i][j], but a[i[j]]
-      end
-    end
+    draw_map @map
     #put_quad(10, 10)
   end
 end
