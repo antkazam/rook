@@ -1,11 +1,12 @@
+require 'matrix'
 require 'gosu' # gem install gosu --no-document
 include Gosu
 
 
-$dimension, $splits = 400, 20
-$size = $dimension.to_f / $splits.to_f
+$dimension = 400
 $TILE_WIDTH = 32
 $TILE_HEIGHT = 16
+$size = $dimension / $TILE_WIDTH + 1
 
 def put_quad(x, y, color=Color::WHITE)
   w = $TILE_WIDTH
@@ -20,31 +21,20 @@ def put_quad(x, y, color=Color::WHITE)
 end
 
 def create_map size
-  a = Array.new(Array.new(size))
-  rnd = Random.new()
-  0.upto(a.length-1) do |i|
-    0.upto(a.length-1) do |j|
-      r = rnd.rand(255)
-      g = rnd.rand(255)
-      b = rnd.rand(255)
-      a[i[j]] = Color.new(255, r, g, b)
-    end
+  map = Matrix.build(4*size, size) do
+    Color.new(255, rand(255), rand(255), rand(255))
   end
-  return a
+  return map
 end
 
 def draw_map map
-  0.upto(map.length-1) do |i|
-      0.upto(map.length-1) do |j|
-        x = j * $TILE_WIDTH
-        y = i * $TILE_HEIGHT
-        if i.odd?
-          x += $TILE_WIDTH/2
-        end
-        color = map[i[j]]
-        put_quad(x, y, color)
-        #It's not a[i][j], but a[i[j]]
+  map.each_with_index do |e, i, j|
+      x = j * $TILE_WIDTH
+      y = i * $TILE_HEIGHT/2
+      if i.odd?
+        x += $TILE_WIDTH/2
       end
+      put_quad(x, y, e)
   end
 end
 
@@ -55,7 +45,7 @@ class GameWindow < Window
     super $dimension, $dimension, false, 100
     self.caption = "Game"
     # instantiate actors
-    @map = create_map(10)
+    @map = create_map($size)
   end
   def button_down(key) 
     puts key if [KbDown,KbUp,KbRight,KbLeft].include? key
@@ -66,9 +56,7 @@ class GameWindow < Window
   end
   
   def draw() 
-
     draw_map @map
-    #put_quad(10, 10)
   end
 end
 
