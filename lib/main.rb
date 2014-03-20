@@ -4,12 +4,13 @@ include Gosu
 
 
 $dimension = 400
-$TILE_WIDTH = 32
-$TILE_HEIGHT = 16
+$TILE_WIDTH = 64
+$TILE_HEIGHT = 32
 $size = $dimension / $TILE_WIDTH + 1
 
-def put_quad(x, y, color=Color::WHITE)
+def put_wobbly_block(x, y, color=Color::WHITE)
   c = color
+  top_color = c
   left_color = Color.from_hsv(c.hue, c.saturation, c.value*0.8)
   right_color = Color.from_hsv(c.hue, c.saturation, c.value*0.5) 
 
@@ -18,10 +19,10 @@ def put_quad(x, y, color=Color::WHITE)
   h = $TILE_HEIGHT
   hw = w/2
   hh = h/2
-  v1 = [x, y+hh, color]
-  v2 = [x+hw, y+h, color]
-  v3 = [x+w, y+hh, color]
-  v4 = [x+hw, y, color]
+  v1 = [x, y+hh, top_color]
+  v2 = [x+hw, y+h, top_color]
+  v3 = [x+w, y+hh, top_color]
+  v4 = [x+hw, y, top_color]
   draw_quad(*v1, *v2, *v3, *v4)
 
   v1 = [x, y+hh, left_color]
@@ -51,7 +52,7 @@ def draw_map map
       if i.odd?
         x += $TILE_WIDTH/2
       end
-      put_quad(x, y, e)
+      put_wobbly_block(x, y, e)
   end
 end
 
@@ -74,7 +75,7 @@ class GameWindow < Window
   
   def draw() 
     draw_map @map
-    #put_quad(10,10)
+    #put_wobbly_block(10,10)
   end
 end
 
