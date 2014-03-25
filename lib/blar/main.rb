@@ -1,6 +1,7 @@
 require 'chingu'
 require 'matrix'
 include Gosu
+require './gui/screen'
 
 $dimension = 400
 $TILE_WIDTH = 48
@@ -66,12 +67,14 @@ module ZOrder
   Background, Stars, Player, UI = *0..3
 end
 
-class GameWindow < Window
+class GameWindow < Chingu::Window
   def initialize
     super $dimension, $dimension, false, 100
     self.caption = "Game"
+    self.input = { :escape => :close }
     # instantiate actors
-    @map = Iso::Map.new(self, $size)
+    @screen = Screen.new($dimension, $dimension, 1)
+    @screen.add Iso::Map.new(self, $size)
     @timer = Chingu::FPSCounter.new
     @font = Font.new(self, Gosu::default_font_name, 20)
   end
@@ -85,7 +88,7 @@ class GameWindow < Window
   end
   
   def draw() 
-    @map.draw
+    @screen.draw
     #0.upto(3) do |i|
     #  @map.put_wobbly_block(30+i*2*$TILE_WIDTH,50)
     #  @map.put_wobbly_block(30+i*3*$TILE_WIDTH,130)

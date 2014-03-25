@@ -1,46 +1,46 @@
+require 'chingu'
 require 'matrix'
-require 'gosu'
 include Gosu
 
 module Iso
   W = 64.0
   H = 32.0
-
+  
   class View
     attr_accessor :t0, :t1
     #attr_accessor :bitmap
     attr_accessor :window
-
+    
     def initialize(window, xorg=50, yorg=50)
       # set the initial position of top of isometric tile 0,0
       @t0 = xorg
       @t1 = yorg
       @window = window
     end
-
+    
     def move_camera_by(x, y, speed=1)
       @t0 -= x * speed
       @t1 -= y * speed
     end
-
+    
     def grid_to_screen_space(gx, gy)
       sx = ( gx - gy ) * W / 2.0 + @t0
       sy = ( gx + gy ) * H / 2.0 + @t1
       return sx, sy
     end
-
+    
     def screen_to_grid_space(sx, sy)
       gx = (sx - @t0) / W + (sy - @t1) / H
       gy = -1.0 * (sx - @t0) / W + (sy - @t1) / H
       return gx, gy
     end
-
+    
     def tile_origin(gx, gy)
       sx, sy = grid_to_screen_space(gx, gy)
       sx -= W / 2
       return sx, sy
     end
-
+    
     def put_wobbly_block(x, y, color=Color::WHITE)
       c = color
       top_color = c
@@ -86,16 +86,50 @@ module Iso
       #puts "Tiles on screen: #{count}"
     end
   end
+end
 
-  class Map
-    attr_accessor :map
+$dimension = 600
 
-    def initialize(rows=10, cols=10, &setup)
-      @map = Matrix.build(cols, rows, &setup)
-    end
+class GameWindow < Chingu::Window
+  def initialize
+    super $dimension, $dimension, false, 100
+    self.caption = "Game"
 
-    def pad_for_screen
-
+    # instantiate actors
+    #@map = Iso::Map.new(self, $size)
+    @view = Iso::View.new(self, $dimension/3, 10)
+    @timer = Chingu::FPSCounter.new
+    @font = Font.new(self, Gosu::default_font_name, 20)
+    self.input = {
+      :escape => :exit,
+      :holding_left => lambda { @view.move_camera_by(-1, 0) },
+      :holding_right => lambda { @view.move_camera_by(1, 0) },
+      :holding_up => lambda { @view.move_camera_by(0, -1) },
+      :holding_down => lambda { @view.move_camera_by(0, 1) },
+    }
+    @map = Matrix.build(10, 10) do
+      rand(4) == 1 ? nil : Color.new(255, rand(255), rand(255), rand(255))
     end
   end
+
+  def button_down(key)
+    camx = camy = 0
+    camy = -1 if key == KbUp
+    camy = 1 if key == KbDown
+    camx = 1 if key == KbRight
+    camx = -1 if key == KbLeft
+    # puts "x: #{camx} y: #{camy}"
+    @view.move_camera_by(camx, camy)
+  end
+  
+  def update() 
+    @timer.register_tick
+  end
+  
+  def draw()
+    @view.draw(@map)
+    @font.draw("fps: #{@timer.fps}", 10, 10, 3, 1.0, 1.0, 0xffffff00)
+  end
 end
+
+GameWindow.new.show
