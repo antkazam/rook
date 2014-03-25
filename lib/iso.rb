@@ -11,7 +11,7 @@ module Iso
     #attr_accessor :bitmap
     attr_accessor :window
 
-    def initialize(window, xorg=50, yorg=50)
+    def initialize(window, xorg=400, yorg=-50)
       # set the initial position of top of isometric tile 0,0
       @t0 = xorg
       @t1 = yorg
@@ -44,10 +44,10 @@ module Iso
     def put_wobbly_block(x, y, color=Color::WHITE)
       c = color
       top_color = c
-      left_color = Color.from_hsv(c.hue, c.saturation, c.value*0.8)
-      right_color = Color.from_hsv(c.hue, c.saturation, c.value*0.5)
+      left_color = Color.from_hsv(c.hue, c.saturation, c.value*0.6)
+      right_color = Color.from_hsv(c.hue, c.saturation, c.value*0.3)
 
-      #y += rand(-2..2)
+      y += rand(-2..2)
       w = W
       h = H
       hw = w/2
@@ -95,6 +95,7 @@ module Iso
     end
 
     def pad_for_screen
+
 
     end
   end
